@@ -2,7 +2,7 @@ from typing import Any, Union
 from fastapi import FastAPI, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .solver import GeneticAlgorithmSolver
+from solver import GeneticAlgorithmSolver
 
 app = FastAPI()
 
