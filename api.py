@@ -1,6 +1,7 @@
 import math
 import random
 from typing import Any
+from cv2 import solve
 
 class EucludianFitnessClaculator:
     def __init__(self, depot, orders_dictionary, num_orders):
@@ -235,19 +236,27 @@ def root():
 
 @app.post("/Model/GetResponse", summary="Model Response")
 def modelResponse(
-    depot: dict[str, Any] = Body(description='depot'),
-    orders_dictionary: dict[str, dict[str, Any]] = Body(description='orders'),
-    num_orders: int = Body(description='num'),
-    with_history: bool = Query(description='Option to return history', default=False)
+    depot: dict[str, Any] = Body(description='Depot', default={}),
+    orders_dictionary: dict[str, dict[str, Any]] = Body(description='Orders Dictionary', default={}),
+    num_orders: int = Body(description='The number of orders', default=32),
+    num_drivers: int = Body(description='The number of drivers', default=5),
+    with_history: bool = Query(description='Option to return history', default=False),
+    history_size: int = Query(description='The length of list history', default=10)
     ):
-    solver = GeneticAlgorithmSolver(depot, orders_dictionary, num_orders, max_iter=600, 
+    solver = GeneticAlgorithmSolver(depot, orders_dictionary, num_orders, num_vehicles=num_drivers, max_iter=600, 
     mutaion_propability=0.03125, population_size=1000)
     solver.fit()
+
+    history: list
+    if history_size >= len(solver.history):
+        history = solver.history
+    else:
+        history = solver.history[:history_size]
 
     if with_history:
         return {
             "best_solution": solver.best_solution,
-            "history": solver.history[:10],
+            "history": history,
         }
     else:
         return {
