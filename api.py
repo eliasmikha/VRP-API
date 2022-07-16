@@ -1,6 +1,9 @@
 import math
 import random
-from typing import Any
+from typing import Any, Union
+from fastapi import FastAPI, Body, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 class EucludianFitnessClaculator:
     def __init__(self, depot, orders_dictionary, num_orders):
@@ -208,15 +211,6 @@ class GeneticAlgorithmSolver:
 
 # num_orders = 32
 
-# request body should include: depot, orders_dictionary, num_orders
-
-
-
-# Response: best_solution, history
-
-from fastapi import FastAPI, Body, Query
-from fastapi.middleware.cors import CORSMiddleware
-
 app = FastAPI()
 
 origins = ["*"]
@@ -233,7 +227,11 @@ app.add_middleware(
 def root():
     return {"message": "Hello World"}
 
-@app.post("/Model/GetResponse", summary="Model Response")
+class ModelResponse(BaseModel):
+    best_solution: list[Union[float, list[float]]]
+    history: Union[list, None] = None
+
+@app.post("/Model/GetResponse", summary="Model Response", response_model=ModelResponse)
 def modelResponse(
     depot: dict[str, Any] = Body(description='Depot', default={}),
     orders_dictionary: dict[str, dict[str, Any]] = Body(description='Orders Dictionary', default={}),
