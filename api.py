@@ -1,7 +1,6 @@
 import math
 import random
 from typing import Any
-from cv2 import solve
 
 class EucludianFitnessClaculator:
     def __init__(self, depot, orders_dictionary, num_orders):
