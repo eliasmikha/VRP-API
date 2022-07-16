@@ -214,7 +214,7 @@ class GeneticAlgorithmSolver:
 
 # Response: best_solution, history
 
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -237,13 +237,19 @@ def root():
 def modelResponse(
     depot: dict[str, Any] = Body(description='depot'),
     orders_dictionary: dict[str, dict[str, Any]] = Body(description='orders'),
-    num_orders: int = Body(description='num')
+    num_orders: int = Body(description='num'),
+    with_history: bool = Query(description='Option to return history', default=False)
     ):
     solver = GeneticAlgorithmSolver(depot, orders_dictionary, num_orders, max_iter=600, 
     mutaion_propability=0.03125, population_size=1000)
     solver.fit()
 
-    return {
-        "best_solution": solver.best_solution,
-        "history": solver.history[:10],
-    }
+    if with_history:
+        return {
+            "best_solution": solver.best_solution,
+            "history": solver.history[:10],
+        }
+    else:
+        return {
+            "best_solution": solver.best_solution,
+        }
